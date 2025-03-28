@@ -86,6 +86,18 @@ def get_warm_or_cool_colors(warm=True, n=5):
     color_list = warm_colors if warm else cool_colors
     return df[df['name'].str.lower().isin(color_list)].sample(n=min(n, len(df)))
 
+def complementary_color(rgb):
+    """Compute the complementary color by shifting the hue by 180 degrees."""
+    r, g, b = [x/255.0 for x in rgb]  
+    h, l, s = colorsys.rgb_to_hls(r, g, b)  
+
+    h_complementary = (h + 0.5) % 1.0  
+
+    r_c, g_c, b_c = colorsys.hls_to_rgb(h_complementary, l, s)  
+    comp_rgb = (int(r_c * 255), int(g_c * 255), int(b_c * 255))
+    
+    return comp_rgb
+
 # ---- STREAMLIT UI ----
 st.title("🎨 Color Genius")
 user_input = st.text_input("Ask about colors (e.g., 'Make crimson darker', 'Find colors like #FF0000')")
@@ -122,7 +134,13 @@ if user_input:
                 if "similar" in user_input.lower() or "like" in user_input.lower():
                     similar = get_similar_colors(color['rgb_tuple'])
                     response += "\n🔍 Similar colors:\n" + "\n".join([f"- {row['name']} ({row['hex']}, RGB: {row['rgb_tuple']})" for _, row in similar.iterrows()])
-        
+
+                if "complementary" in user_input.lower():
+                    comp_rgb = complementary_color(color['rgb_tuple'])
+                    comp_hex = '#%02x%02x%02x' % comp_rgb
+                    response += f"\n🎨 Complementary Color: {comp_hex}"
+                    st.markdown(f"""<div style='width:100px; height:100px; background:{comp_hex};'></div>""", unsafe_allow_html=True)
+
         # Store the interaction in session state
         st.session_state.history.append((user_input, response))
 
