@@ -17,7 +17,7 @@ model = genai.GenerativeModel('gemini-1.5-pro-latest')
 # Load and preprocess color data
 @st.cache_data
 def load_data():
-    df = pd.read_csv("C:/Users/fnesh/OneDrive/Documents/Uni/IEN/colors.csv")
+    df = pd.read_csv("colors.csv")
     df['rgb_tuple'] = df['rgb'].apply(lambda x: [int(i) for i in x.replace("rgb(", "").replace(")", "").split(",")])
     rgb_array = np.array(df['rgb_tuple'].tolist()) / 255.0
     df['lab'] = list(rgb_array * [100, 1, 1])  # Mock LAB values
